@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEI Content Checker</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .highlight {
+            background-color: #ffcccc;
+            font-weight: bold;
+        }
+
+        .highlight {
+        background-color: #ffcccc;
+        font-weight: bold;
+        position: relative;
+        }
+
+        .highlight:hover::after {
+            content: attr(title);
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            z-index: 10;
+            transform: translateY(-150%);
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>DEI Content Checker</h1>
+    <p>Paste your text below and click "Analyze" to find flagged terms.</p>
+    <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+    <button id="analyzeButton">Analyze</button>
+
+    <div class="result" id="result">
+        <h3>Analysis Result:</h3>
+        <p id="outputText"></p>
+    </div>
+
+    <script>
+        document.getElementById("analyzeButton").addEventListener("click", async () => {
+            const inputText = document.getElementById("inputText").value;
+    
+            if (!inputText.trim()) {
+                alert("Please enter some text before analyzing.");
+                return;
+            }
+    
+            try {
+                // Send the input text to the backend
+                const response = await fetch("http://127.0.0.1:5000/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: inputText })
+                });
+    
+                const result = await response.json();
+    
+                const outputText = document.getElementById("outputText");
+                outputText.innerHTML = ""; // Clear previous results
+    
+                let highlightedText = result.input_text;
+    
+                // Add tooltips for flagged terms
+                result.analysis.forEach(issue => {
+                    const regex = new RegExp(`\\b${issue.term}\\b`, "g");
+                    highlightedText = highlightedText.replace(regex, `
+                        <span class="highlight" title="${issue.feedback}">
+                            ${issue.term}
+                        </span>
+                    `);
+                });
+    
+                outputText.innerHTML = highlightedText;
+    
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while analyzing the text. Please try again.");
+            }
+        });
+    </script>
+    
+</body>
+</html>
