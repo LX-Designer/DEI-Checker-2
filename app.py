@@ -70,28 +70,28 @@ def extract_text_from_pdf(file_path):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
+        return jsonify({"error": "No file part in the request. Please select a file."}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"error": "No file selected. Please choose a file to upload."}), 400
 
-    if file and allowed_file(file.filename):
+    if not file or not allowed_file(file.filename):
+        return jsonify({"error": "Invalid file type. Only .txt, .docx, and .pdf files are supported."}), 400
+
+    try:
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
         # Extract text based on file type
-        try:
-            if filename.endswith('.docx'):
-                extracted_text = extract_text_from_docx(file_path)
-            elif filename.endswith('.pdf'):
-                extracted_text = extract_text_from_pdf(file_path)
-            else:  # For .txt files
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    extracted_text = f.read()
-        except Exception as e:
-            return jsonify({"error": f"Error processing file: {e}"}), 500
+        if filename.endswith('.docx'):
+            extracted_text = extract_text_from_docx(file_path)
+        elif filename.endswith('.pdf'):
+            extracted_text = extract_text_from_pdf(file_path)
+        else:  # For .txt files
+            with open(file_path, 'r', encoding='utf-8') as f:
+                extracted_text = f.read()
 
         # Analyze the extracted text
         terms_feedback = {
@@ -112,8 +112,9 @@ def upload_file():
             "input_text": extracted_text,
             "analysis": analysis_results
         })
+    except Exception as e:
+        return jsonify({"error": f"An error occurred while processing the file: {str(e)}"}), 500
 
-    return jsonify({"error": "File type not allowed"}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)  # Run the app in debug mode.
