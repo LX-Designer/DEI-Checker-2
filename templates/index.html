@@ -76,6 +76,12 @@
     <textarea id="inputText" placeholder="Enter your text here..."></textarea>
     <button id="analyzeButton">Analyze</button>
 
+    <div>
+        <h2>Upload a Document</h2>
+        <input type="file" id="fileInput">
+        <button id="uploadButton">Upload and Analyze</button>
+    </div>
+
     <div class="result" id="result">
         <h3>Analysis Result:</h3>
         <p id="outputText"></p>
@@ -122,6 +128,55 @@
                 alert("An error occurred while analyzing the text. Please try again.");
             }
         });
+
+        document.getElementById("uploadButton").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                const outputText = document.getElementById("outputText");
+                outputText.innerHTML = ""; // Clear previous results
+
+                if (result.error) {
+                    outputText.innerText = `Error: ${result.error}`;
+                    return;
+                }
+
+                let highlightedText = result.input_text;
+
+                // Add tooltips for flagged terms
+                result.analysis.forEach(issue => {
+                    const regex = new RegExp(`\\b${issue.term}\\b`, "g");
+                    highlightedText = highlightedText.replace(regex, `
+                        <span class="highlight" title="${issue.feedback}">
+                            ${issue.term}
+                        </span>
+                    `);
+                });
+
+                outputText.innerHTML = highlightedText;
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while uploading the file. Please try again.");
+            }
+        });
+
     </script>
     
 </body>
