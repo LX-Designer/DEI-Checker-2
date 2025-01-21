@@ -1,8 +1,20 @@
+import logging
 from flask import Flask, request, jsonify, render_template  # Import modules for handling requests and JSON responses.
 from werkzeug.utils import secure_filename
 import os
 import docx
 import PyPDF2
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Set to INFO or ERROR for production
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),  # Log to a file
+        logging.StreamHandler()         # Log to console
+    ]
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)  # Create the Flask app.
 
@@ -15,12 +27,16 @@ problematic_terms = {
 
 @app.route("/")  # Root endpoint.
 def input_text():
+    logger.info("Landing page accessed.")
     return render_template("index.html")  # Render and return the index.html template.
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
+    logger.info("Analyze endpoint accessed.")
     data = request.get_json()
+    logger.info(f"Received data: {data}")
     input_text = data['text']
+    logger.info(f"Input text: {input_text}")
 
     # Example problematic terms with feedback
     terms_feedback = {
@@ -34,6 +50,7 @@ def analyze():
     # Tokenize text and check for problematic terms
     for term, feedback in terms_feedback.items():
         if term in input_text:
+            logger.info(f"Problematic term found: {term}")
             analysis_results.append({
                 "term": term,
                 "feedback": feedback
@@ -69,14 +86,18 @@ def extract_text_from_pdf(file_path):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    logger.info("Received a file upload request.")
     if 'file' not in request.files:
+        logger.warning("No file part in the request.")
         return jsonify({"error": "No file part in the request. Please select a file."}), 400
 
     file = request.files['file']
     if file.filename == '':
+        logger.warning("No file selected for upload.")
         return jsonify({"error": "No file selected. Please choose a file to upload."}), 400
 
     if not file or not allowed_file(file.filename):
+        logger.warning(f"Invalid file type: {file.filename}")
         return jsonify({"error": "Invalid file type. Only .txt, .docx, and .pdf files are supported."}), 400
 
     try:
@@ -84,6 +105,7 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
+        logger.info(f"File saved: {file_path}")
         # Extract text based on file type
         if filename.endswith('.docx'):
             extracted_text = extract_text_from_docx(file_path)
@@ -113,8 +135,8 @@ def upload_file():
             "analysis": analysis_results
         })
     except Exception as e:
+        logger.error(f"Error while processing file: {str(e)}")
         return jsonify({"error": f"An error occurred while processing the file: {str(e)}"}), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)  # Run the app in debug mode.
