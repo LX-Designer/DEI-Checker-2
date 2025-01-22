@@ -64,7 +64,12 @@ def analyze():
 # Add endpoint for handling file uploads
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf'}
+# Set maximum file size to 10MB
+MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 megabytes
+
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
 # Ensure the upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -103,9 +108,15 @@ def upload_file():
     try:
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+
+        # Save file in chunks
+        logger.info(f"Saving file in chunks to: {file_path}")
+        with open(file_path, 'wb') as f:
+            for chunk in file.stream:
+                f.write(chunk)
 
         logger.info(f"File saved: {file_path}")
+
         # Extract text based on file type
         if filename.endswith('.docx'):
             extracted_text = extract_text_from_docx(file_path)
@@ -134,6 +145,7 @@ def upload_file():
             "input_text": extracted_text,
             "analysis": analysis_results
         })
+
     except Exception as e:
         logger.error(f"Error while processing file: {str(e)}")
         return jsonify({"error": f"An error occurred while processing the file: {str(e)}"}), 500
