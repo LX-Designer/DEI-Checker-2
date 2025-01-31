@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 import docx
 import PyPDF2
+import spacy
 
 # Configure logging
 logging.basicConfig(
@@ -17,6 +18,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)  # Create the Flask app.
+
+# initialise nlp
+nlp = spacy.load("en_core_web_sm")
 
 # Define a dictionary of problematic terms and their feedback.
 problematic_terms = {
