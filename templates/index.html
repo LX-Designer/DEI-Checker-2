@@ -7,22 +7,26 @@
     <title>DEI Content Checker</title>
 </head>
 <body>
-    <h1>DEI Content Checker</h1>
-    <p>Paste your text below and click "Analyze" to find flagged terms.</p>
-    <textarea id="inputText" placeholder="Enter your text here..."></textarea>
-    <button id="analyzeButton">Analyze</button>
+    <div class="container">
+        <h1>DEI Content Checker</h1>
+        <p>Paste your text below and click "Analyse" to review your content.</p>
+        <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+        <button id="analyzeButton">Analyze</button>
 
-    <div>
-        <h2>Upload a Document</h2>
-        <input type="file" id="fileInput">
-        <button id="uploadButton">Upload and Analyze</button>
+        <div>
+            <h2>Upload a Document</h2>
+            <input type="file" id="fileInput">
+            <button id="uploadButton">Upload and Analyze</button>
+        </div>
+
+        <div class="result" id="result">
+            <h3>Issues Found:</h3>
+            <ul id="issuesList"></ul>
+            <h3>Analysis Result:</h3>
+            <div id="highlightedText" class="highlight-container"></div>
+            <div id="tooltip" class="tooltip"></div> 
+        </div>
     </div>
-
-    <div class="result" id="result">
-        <h3>Analysis Result:</h3>
-        <p id="outputText"></p>
-    </div>
-
     <script src="/static/script.js"></script>
 </body>
 </html>

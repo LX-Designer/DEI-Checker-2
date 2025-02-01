@@ -1,27 +1,60 @@
+/* General Styles */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+h1, h2, h3 {
+    color: #0056b3;
+}
+
+p {
+    line-height: 1.6;
 }
 
 textarea {
     width: 100%;
     height: 150px;
     padding: 10px;
-    margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+textarea:focus {
+    border-color: #007bff; /* Change border color when focused */
+    outline: none; /* Remove default outline */
 }
 
 button {
-    padding: 10px 20px;
-    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
-    background-color: #007BFF;
-    color: white;
     cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    font-size: 16px;
 }
 
 button:hover {
@@ -29,35 +62,68 @@ button:hover {
 }
 
 .result {
+    display: none;
     margin-top: 20px;
     padding: 10px;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
+    overflow: hidden; /* Prevent tooltip overflow */
+    position: relative; /* Required for tooltip positioning */
 }
 
 .highlight {
-background-color: yellow;
-color: black;
-font-weight: bold;
-border-radius: 3px;
-padding: 2px;
-cursor: pointer;
+    background-color: yellow;
+    color: black;
+    border-radius: 3px;
+    padding: 2px 4px;
 }
 
-.highlight:hover {
-    background-color: orange;
-}
-
-.highlight:hover::after {
-    content: attr(title);
+.tooltip {
+    display: none;
     position: absolute;
     background-color: #333;
     color: #fff;
-    padding: 5px 10px;
+    padding: 10px;
     border-radius: 5px;
-    white-space: nowrap;
-    z-index: 10;
-    transform: translateY(-150%);
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+    word-wrap: break-word;
+    white-space: normal;
+    box-sizing: border-box;
+    z-index: 1000;
+    max-width: calc(100% - 20px);
+    overflow-wrap: break-word;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    position: absolute;
+}
+
+/* Arrow pointing DOWN when the tooltip is ABOVE the word */
+.tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px; /* Position the arrow outside the tooltip */
+    left: 50%;
+    top: 100%; /* Position below the tooltip */
+    transform: translateX(-50%);
+    border-width: 6px; /* Size of the arrow */
+    border-style: solid;
+    border-color: #333 transparent transparent transparent; /* Arrow color */
+}
+
+/* Arrow pointing UP when the tooltip is BELOW the word */
+.tooltip.bottom::after {
+    top: auto;
+    bottom: 100%; /* Position above the tooltip */
+    border-color: transparent transparent #333 transparent; /* Flip the arrow */
+}
+
+input[type="file"] {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+input[type="file"]:hover {
+    border-color: #007BFF;
 }
