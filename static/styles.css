@@ -13,12 +13,13 @@ body {
 
 .container {
     width: 90%;
-    max-width: 800px;
+    max-width: 80%;
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 20px;
+    position: relative;
 }
 
 h1, h2, h3 {
@@ -42,8 +43,8 @@ textarea {
 }
 
 textarea:focus {
-    border-color: #007bff; /* Change border color when focused */
-    outline: none; /* Remove default outline */
+    border-color: #007bff;
+    outline: none;
 }
 
 button {
@@ -68,8 +69,8 @@ button:hover {
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
-    overflow: hidden; /* Prevent tooltip overflow */
-    position: relative; /* Required for tooltip positioning */
+    overflow: hidden;
+    position: relative;
 }
 
 .highlight {
@@ -77,43 +78,8 @@ button:hover {
     color: black;
     border-radius: 3px;
     padding: 2px 4px;
-}
-
-.tooltip {
-    display: none;
-    position: absolute;
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    word-wrap: break-word;
-    white-space: normal;
-    box-sizing: border-box;
-    z-index: 1000;
-    max-width: calc(100% - 20px);
-    overflow-wrap: break-word;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    position: absolute;
-}
-
-/* Arrow pointing DOWN when the tooltip is ABOVE the word */
-.tooltip::after {
-    content: '';
-    position: absolute;
-    bottom: -6px; /* Position the arrow outside the tooltip */
-    left: 50%;
-    top: 100%; /* Position below the tooltip */
-    transform: translateX(-50%);
-    border-width: 6px; /* Size of the arrow */
-    border-style: solid;
-    border-color: #333 transparent transparent transparent; /* Arrow color */
-}
-
-/* Arrow pointing UP when the tooltip is BELOW the word */
-.tooltip.bottom::after {
-    top: auto;
-    bottom: 100%; /* Position above the tooltip */
-    border-color: transparent transparent #333 transparent; /* Flip the arrow */
+    position: relative;
+    cursor: pointer;
 }
 
 input[type="file"] {
@@ -126,4 +92,44 @@ input[type="file"] {
 
 input[type="file"]:hover {
     border-color: #007BFF;
+}
+
+a {
+    text-decoration: none; /* Remove underline */
+    color: #007bff; /* Change color */
+}
+
+a:hover {
+    color: #0056b3; /* Change color on hover */
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+    position: fixed; /* Fixed position */
+    bottom: 20px;
+    left: 0; /* Will be dynamically updated */
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-end; /* Align buttons to the right */
+    z-index: 1000; /* Ensure it's above the result container */
+}
+
+.nav-buttons button {
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.nav-buttons button:hover {
+    background-color: #0056b3;
 }
