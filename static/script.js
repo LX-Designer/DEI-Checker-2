@@ -59,7 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if (!highlightedTextContainer || !issuesList) {
             console.error("Required result elements not found");
-            return;
+            throw new Error("Required result elements not found");
+        }
+
+        if (!result || !result.input_text || !result.analysis) {
+            console.error("Invalid analysis result format", result);
+            throw new Error("Invalid response from server");
         }
 
         highlightedTextContainer.innerHTML = result.input_text;
@@ -92,9 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
             issuesList.appendChild(issueList);
         });
 
-        // Initialize term navigation
+        // Initialize term navigation with -1 to start before first term
         termElements = document.querySelectorAll(".highlight");
-        currentTermIndex = 0;
+        currentTermIndex = -1;
 
         // Show the results and feedback panel
         resultContainer.style.display = "block";
@@ -103,8 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Set initial feedback panel content
         feedbackContent.innerHTML = `
             <h4>Navigation Instructions</h4>
-            <p>Click on any highlighted term to see detailed feedback.</p>
-            <p>Use the navigation buttons above to move between terms.</p>
+            <p>Found ${termElements.length} highlighted terms.</p>
+            <p>Use ↑/↓ arrow keys or navigation buttons to move between terms.</p>
+            <p>Click any highlighted term to see its feedback.</p>
         `;
 
         // Initialize highlight listeners
@@ -118,6 +124,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("analyzeButton").addEventListener("click", async () => {
         const inputText = document.getElementById("inputText").value.trim();
+        const resultContainer = document.getElementById("result");
+        const highlightedTextContainer = document.getElementById("highlightedText");
+        const issuesList = document.getElementById("issuesList");
+
+        // Reset previous results
+        highlightedTextContainer.innerHTML = "";
+        issuesList.innerHTML = "";
+        resultContainer.style.display = "none";
 
         if (!inputText) {
             alert("Please enter some text before analyzing.");
@@ -127,20 +141,36 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch("http://127.0.0.1:5000/analyze", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
                 body: JSON.stringify({ text: inputText })
             });
 
             const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || `Server error (${response.status})`);
+            }
             
             if (result.error) {
                 throw new Error(result.error);
             }
+
+            if (!result.input_text || !result.analysis) {
+                throw new Error("Invalid response format from server");
+            }
             
             await processAnalysisResults(result);
         } catch (error) {
-            console.error("Error:", error);
-            alert("An error occurred while analyzing the text. Please try again.");
+            console.error("Analysis error:", error);
+            alert(`Unable to analyze text: ${error.message}`);
+            
+            // Clear any partial results
+            highlightedTextContainer.innerHTML = "";
+            issuesList.innerHTML = "";
+            resultContainer.style.display = "none";
         }
     });
 
@@ -175,38 +205,88 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    function updateFocus() {
+        // Remove focus from all terms
+        termElements.forEach(el => el.classList.remove('focused'));
+        
+        // Add focus to current term if valid index exists
+        if (currentTermIndex >= 0 && currentTermIndex < termElements.length) {
+            termElements[currentTermIndex].classList.add('focused');
+        }
+    }
+
     // Next and previous term button functionality
-    function scrollToNextTerm() {
-        if (termElements.length > 0) {
-            let nextTermIndex = (currentTermIndex % termElements.length) + 1;
-            if (nextTermIndex > termElements.length) {
-                nextTermIndex = 1;
-            }
-            console.log(`term index (next button): ${nextTermIndex}`);
-            termElements[nextTermIndex - 1].scrollIntoView({ behavior: "smooth", block: "center" });
+    function navigateToTerm(direction) {
+        if (!termElements.length) return;
+        
+        if (direction === 'next') {
+            currentTermIndex = (currentTermIndex + 1) % termElements.length;
+        } else if (direction === 'prev') {
+            currentTermIndex = (currentTermIndex - 1 + termElements.length) % termElements.length;
         }
+        
+        const currentTerm = termElements[currentTermIndex];
+        currentTerm.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        // Update focus and show feedback
+        updateFocus();
+        const { feedback, category, source } = currentTerm.dataset;
+        showFeedback(currentTerm, feedback, category, source);
     }
 
-    function scrollToPrevTerm() {
-        if (termElements.length > 0) {
-            let prevTermIndex = (currentTermIndex - 2 + termElements.length) % termElements.length + 1;
-            if (prevTermIndex < 1) {
-                prevTermIndex = termElements.length;
-            }
-            console.log(`term index (previous button): ${prevTermIndex}`);
-            termElements[prevTermIndex - 1].scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-    }
+    // Update the existing button handlers
+    document.getElementById("nextTermButton").addEventListener("click", () => navigateToTerm('next'));
+    document.getElementById("prevTermButton").addEventListener("click", () => navigateToTerm('prev'));
 
-    document.getElementById("nextTermButton").addEventListener("click", scrollToNextTerm);
-    document.getElementById("prevTermButton").addEventListener("click", scrollToPrevTerm);
+    // Add keyboard navigation
+    document.addEventListener("keydown", (e) => {
+        if (!resultContainer.style.display === "block") return;
+        
+        switch(e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                navigateToTerm('next');
+                break;
+            case "ArrowUp":
+                e.preventDefault();
+                navigateToTerm('prev');
+                break;
+            case "Home":
+                e.preventDefault();
+                if (termElements.length) {
+                    currentTermIndex = 0;
+                    const firstTerm = termElements[0];
+                    firstTerm.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const { feedback, category, source } = firstTerm.dataset;
+                    showFeedback(firstTerm, feedback, category, source);
+                }
+                break;
+            case "End":
+                e.preventDefault();
+                if (termElements.length) {
+                    currentTermIndex = termElements.length - 1;
+                    const lastTerm = termElements[currentTermIndex];
+                    lastTerm.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const { feedback, category, source } = lastTerm.dataset;
+                    showFeedback(lastTerm, feedback, category, source);
+                }
+                break;
+        }
+    });
 
     // Scroll to top button functionality
     function scrollToTop() {
-        currentTermIndex = 0;
-        console.log(`Scroll to top, reset index: ${currentTermIndex}`);
-
+        currentTermIndex = -1; // Reset index
+        updateFocus(); // Clear focus
         window.scrollTo({ top: 0, behavior: "smooth" });
+        
+        // Reset feedback panel
+        feedbackContent.innerHTML = `
+            <h4>Navigation Instructions</h4>
+            <p>Found ${termElements.length} highlighted terms.</p>
+            <p>Use ↑/↓ arrow keys or navigation buttons to move between terms.</p>
+            <p>Click any highlighted term to see its feedback.</p>
+        `;
     }
 
     document.getElementById("topButton").addEventListener("click", scrollToTop);
@@ -230,13 +310,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const contentHeight = feedbackContent.scrollHeight;
         feedbackPanel.style.maxHeight = `${Math.min(contentHeight + 100, window.innerHeight * 0.3)}px`;
         
-        // Remove previous highlights
-        document.querySelectorAll('.highlight.active').forEach(el => {
-            el.classList.remove('active');
+        // Remove previous highlights and focus
+        document.querySelectorAll('.highlight').forEach(el => {
+            el.classList.remove('active', 'focused');
         });
         
-        // Add highlight to current term
-        term.classList.add('active');
+        // Add highlight and focus to current term
+        term.classList.add('active', 'focused');
+        
+        // Update currentTermIndex to match the clicked term
+        currentTermIndex = Array.from(termElements).indexOf(term);
     }
 
     function initializeHighlightListeners() {

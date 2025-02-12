@@ -81,6 +81,15 @@ button:hover {
     padding: 2px 4px;
     position: relative;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.highlight.focused {
+    background-color: #ffd700;
+    outline: 2px solid #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+    position: relative;
+    z-index: 1;
 }
 
 .term-focus {

@@ -83,59 +83,74 @@ def input_text():                                                   # Define a f
     return render_template("index.html")                            # Render the index.html template.
 
 
-@app.route('/analyze', methods=['POST'])                            # Define a route for the analyze endpoint.
+@app.route('/analyze', methods=['POST'])
 def analyze():
     try:
         logger.info("Analyze endpoint accessed.")
         data = request.get_json()
 
-        if not data or 'text' not in data:
-            logger.warning("Invalid request: No text provided.")
-            return jsonify({"error": "No text provided. Please enter some text."}), 400
+        # Validate input
+        if not data:
+            logger.warning("No JSON data received")
+            return jsonify({"error": "No data provided"}), 400
 
-        input_text = data['text']
-        logger.info(f"Input text: {input_text}")
+        if 'text' not in data or not isinstance(data['text'], str):
+            logger.warning("Invalid or missing text field")
+            return jsonify({"error": "Invalid text format"}), 400
 
-        terms_data = get_problematic_terms()
-        topics = get_topics()
+        input_text = data['text'].strip()
+        if not input_text:
+            logger.warning("Empty text received")
+            return jsonify({"error": "Please enter some text to analyze"}), 400
 
+        # Get terms from database
+        try:
+            terms_data = get_problematic_terms()
+            if not terms_data:
+                logger.warning("No terms found in database")
+                return jsonify({"error": "No analysis terms available"}), 500
+        except sqlite3.Error as db_error:
+            logger.error(f"Database error: {str(db_error)}")
+            return jsonify({"error": "Database connection error"}), 500
+
+        # Process text
         analysis_results = []
         highlighted_text = input_text
 
-        for term_info in terms_data:
-            pattern = term_info["pattern"]
-            regex = re.compile(pattern, re.IGNORECASE)
-            
-            if regex.search(input_text):
-                match = regex.search(input_text)
-                analysis_results.append({
-                    "term": match.group(),
-                    "feedback": term_info["feedback"],
-                    "category": term_info["category"],
-                    "source": term_info["source"]
-                })
+        try:
+            for term_info in terms_data:
+                pattern = term_info["pattern"]
+                regex = re.compile(pattern, re.IGNORECASE)
                 
-                highlighted_text = regex.sub(
-                    lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
-                            f'data-category="{term_info["category"]}" '
-                            f'data-source="{term_info["source"]}">{m.group()}</span>',
-                    highlighted_text
-                )
+                if regex.search(input_text):
+                    match = regex.search(input_text)
+                    analysis_results.append({
+                        "term": match.group(),
+                        "feedback": term_info["feedback"],
+                        "category": term_info["category"] or "General",
+                        "source": term_info["source"] or "Internal"
+                    })
+                    
+                    highlighted_text = regex.sub(
+                        lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
+                                f'data-category="{term_info["category"] or "General"}" '
+                                f'data-source="{term_info["source"] or "Internal"}">{m.group()}</span>',
+                        highlighted_text
+                    )
 
-        for topic, terms in topics.items():
-            topic_count = sum(1 for term in terms if term.lower() in input_text.lower())
-            if topic_count >= 2:
-                analysis_results.append({
-                    "topic": topic,
-                    "feedback": f"Potential discussion about {topic}. Please review the content for sensitivity."
-                })
+            return jsonify({
+                "input_text": highlighted_text,
+                "analysis": analysis_results,
+                "total_matches": len(analysis_results)
+            })
 
-        return jsonify({"input_text": highlighted_text, "analysis": analysis_results})
+        except re.error as regex_error:
+            logger.error(f"Regex error: {str(regex_error)}")
+            return jsonify({"error": "Error in text processing"}), 500
 
     except Exception as e:
-        logger.error(f"Error in analyze route: {str(e)}")
-        return jsonify({"error": "An error occurred while processing the text."}), 500
-
+        logger.error(f"Unexpected error in analyze route: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
 
 @app.route('/upload', methods=['POST'])                                 # Define a route for the upload endpoint.
