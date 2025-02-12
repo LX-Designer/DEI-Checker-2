@@ -26,13 +26,18 @@
             <h3>Analysis Result:</h3>
             <div id="highlightedText" class="highlight-container"></div>
             <div id="tooltip" class="tooltip"></div>
-
-            <div class="nav-buttons">
-                <button id="nextTermButton"><i class="fas fa-chevron-down"></i></button>
-                <button id="prevTermButton"><i class="fas fa-chevron-up"></i></button>
-                <button id="topButton"><i class="fas fa-angle-double-up"></i></button>
+            
+            <div class="feedback-panel" id="feedbackPanel">
+                <div class="nav-controls">
+                    <button id="prevTermButton"><i class="fas fa-chevron-up"></i></button>
+                    <button id="nextTermButton"><i class="fas fa-chevron-down"></i></button>
+                    <button id="topButton"><i class="fas fa-angle-double-up"></i></button>
+                </div>
+                <div class="feedback-content" id="feedbackContent">
+                    <p>Click on a highlighted term to see feedback</p>
+                </div>
             </div>
-        </div>        
+        </div>
     </div>
     <script src="/static/script.js"></script>
 </body>

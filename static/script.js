@@ -6,11 +6,20 @@ function escapeRegExp(string) {
 document.addEventListener("DOMContentLoaded", () => {
     let currentTermIndex = 0;
     let termElements = [];
-
     const resultContainer = document.getElementById("result");
-    const navButtons = document.querySelector(".nav-buttons");
+    const feedbackPanel = document.getElementById("feedbackPanel");
+    const feedbackContent = document.getElementById("feedbackContent");
+
+    // Ensure required elements exist
+    if (!resultContainer || !feedbackPanel || !feedbackContent) {
+        console.error("Required DOM elements not found");
+        return;
+    }
 
     function updateNavButtonsPosition() {
+        const navButtons = document.querySelector(".nav-controls");
+        if (!navButtons) return;
+        
         const containerRect = resultContainer.getBoundingClientRect();
         const navButtonsWidth = navButtons.offsetWidth;
         const centerX = containerRect.left + (containerRect.width / 2) - (navButtonsWidth / 2);
@@ -34,14 +43,78 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    window.addEventListener("resize", updateNavButtonsPosition);
+    window.addEventListener("resize", () => {
+        if (document.getElementById("result").style.display === "block") {
+            updateNavButtonsPosition();
+        }
+    });
     window.addEventListener("scroll", () => {
         updateNavButtonsPosition();
         updateCurrentTermIndex();
     });
 
-    // Ensure the initial position is updated after the DOM is fully loaded
-    setTimeout(updateNavButtonsPosition, 0);
+    async function processAnalysisResults(result) {
+        const highlightedTextContainer = document.getElementById("highlightedText");
+        const issuesList = document.getElementById("issuesList");
+        
+        if (!highlightedTextContainer || !issuesList) {
+            console.error("Required result elements not found");
+            return;
+        }
+
+        highlightedTextContainer.innerHTML = result.input_text;
+        issuesList.innerHTML = "";
+
+        // Group issues by category
+        const categorizedIssues = {};
+        result.analysis.forEach(issue => {
+            if (!categorizedIssues[issue.category]) {
+                categorizedIssues[issue.category] = [];
+            }
+            categorizedIssues[issue.category].push(issue);
+        });
+
+        // Create category sections
+        Object.entries(categorizedIssues).forEach(([category, issues]) => {
+            const categoryHeader = document.createElement("h4");
+            categoryHeader.textContent = category;
+            issuesList.appendChild(categoryHeader);
+
+            const issueList = document.createElement("ul");
+            issues.forEach(issue => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `
+                    <strong>"${issue.term}"</strong>: ${issue.feedback}
+                    <br><small>Source: ${issue.source}</small>
+                `;
+                issueList.appendChild(listItem);
+            });
+            issuesList.appendChild(issueList);
+        });
+
+        // Initialize term navigation
+        termElements = document.querySelectorAll(".highlight");
+        currentTermIndex = 0;
+
+        // Show the results and feedback panel
+        resultContainer.style.display = "block";
+        feedbackPanel.classList.add('visible');
+
+        // Set initial feedback panel content
+        feedbackContent.innerHTML = `
+            <h4>Navigation Instructions</h4>
+            <p>Click on any highlighted term to see detailed feedback.</p>
+            <p>Use the navigation buttons above to move between terms.</p>
+        `;
+
+        // Initialize highlight listeners
+        initializeHighlightListeners();
+
+        // Update positions after elements are visible
+        setTimeout(() => {
+            updateNavButtonsPosition();
+        }, 100);
+    }
 
     document.getElementById("analyzeButton").addEventListener("click", async () => {
         const inputText = document.getElementById("inputText").value.trim();
@@ -59,65 +132,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const result = await response.json();
-            const highlightedTextContainer = document.getElementById("highlightedText");
-            const issuesList = document.getElementById("issuesList");
-
-            highlightedTextContainer.innerHTML = "";
-            issuesList.innerHTML = "";
-
+            
             if (result.error) {
-                highlightedTextContainer.innerHTML = `<p style="color: red;">Error: ${result.error}</p>`;
-                return;
+                throw new Error(result.error);
             }
-
-            let highlightedText = result.input_text;
-            let termCount = 0;
-            const termPositions = [];
-
-            result.analysis.forEach(issue => {
-                const escapedTerm = escapeRegExp(issue.term);
-                const regex = issue.term.includes(" ")
-                    ? new RegExp(`${escapedTerm}`, "gi")
-                    : new RegExp(`\\b${escapedTerm}\\b`, "gi");
-
-                highlightedText = highlightedText.replace(regex, (match, offset) => {
-                    termCount++;
-                    const termId = `term-${termCount}`;
-                    termPositions.push({ term: issue.term, feedback: issue.feedback, id: termId, position: offset });
-                    return `<span id="${termId}" title="${issue.feedback}">${match}</span>`;
-                });
-            });
-
-            // Sort terms by their positions in the input text
-            termPositions.sort((a, b) => a.position - b.position);
-
-            // Add sorted terms to the issues list
-            termPositions.forEach(term => {
-                const listItem = document.createElement("li");
-                listItem.innerHTML = `<a href="#${term.id}" class="term-link"><strong>${term.term}</strong></a>: ${term.feedback}`;
-                issuesList.appendChild(listItem);
-            });
-
-            highlightedTextContainer.innerHTML = `<p>${highlightedText}</p>`;
-            resultContainer.style.display = "block";
-
-            // Get all term elements
-            termElements = document.querySelectorAll(".highlight");
-            currentTermIndex = 0;
-
-            // Add event listeners to the term links to scroll the term into view
-            document.querySelectorAll(".term-link").forEach(link => {
-                link.addEventListener("click", (event) => {
-                    currentTermIndex = termPositions.findIndex(term => term.id === link.getAttribute("href").substring(1)) + 1; // Update current term index
-                    event.preventDefault();
-                    const termId = link.getAttribute("href").substring(1);
-                    const termElement = document.getElementById(termId);
-                    if (termElement) {
-                        termElement.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                });
-            });
-
+            
+            await processAnalysisResults(result);
         } catch (error) {
             console.error("Error:", error);
             alert("An error occurred while analyzing the text. Please try again.");
@@ -143,65 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const result = await response.json();
-            const highlightedTextContainer = document.getElementById("highlightedText");
-            const issuesList = document.getElementById("issuesList");
-
-            highlightedTextContainer.innerHTML = "";
-            issuesList.innerHTML = "";
-
+            
             if (result.error) {
-                highlightedTextContainer.innerHTML = `<p style="color: red;">Error: ${result.error}</p>`;
-                return;
+                throw new Error(result.error);
             }
-
-            let highlightedText = result.input_text;
-            let termCount = 0;
-            const termPositions = [];
-
-            result.analysis.forEach(issue => {
-                const escapedTerm = escapeRegExp(issue.term);
-                const regex = issue.term.includes(" ")
-                    ? new RegExp(`${escapedTerm}`, "gi")
-                    : new RegExp(`\\b${escapedTerm}\\b`, "gi");
-
-                highlightedText = highlightedText.replace(regex, (match, offset) => {
-                    termCount++;
-                    const termId = `term-${termCount}`;
-                    termPositions.push({ term: issue.term, feedback: issue.feedback, id: termId, position: offset });
-                    return `<span id="${termId}" title="${issue.feedback}">${match}</span>`;
-                });
-            });
-
-            // Sort terms by their positions in the input text
-            termPositions.sort((a, b) => a.position - b.position);
-
-            // Add sorted terms to the issues list
-            termPositions.forEach(term => {
-                const listItem = document.createElement("li");
-                listItem.innerHTML = `<a href="#${term.id}" class="term-link"><strong>${term.term}</strong></a>: ${term.feedback}`;
-                issuesList.appendChild(listItem);
-            });
-
-            highlightedTextContainer.innerHTML = `<p>${highlightedText}</p>`;
-            resultContainer.style.display = "block";
-
-            // Get all term elements
-            termElements = document.querySelectorAll(".highlight");
-            currentTermIndex = 0;
-
-            // Add event listeners to the term links to scroll the term into view
-            document.querySelectorAll(".term-link").forEach(link => {
-                link.addEventListener("click", (event) => {
-                    currentTermIndex = termPositions.findIndex(term => term.id === link.getAttribute("href").substring(1)) + 1; // Update current term index
-                    event.preventDefault();
-                    const termId = link.getAttribute("href").substring(1);
-                    const termElement = document.getElementById(termId);
-                    if (termElement) {
-                        termElement.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                });
-            });
-
+            
+            await processAnalysisResults(result);
         } catch (error) {
             console.error("Error:", error);
             alert("An error occurred while uploading the file. Please try again.");
@@ -244,5 +211,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("topButton").addEventListener("click", scrollToTop);
 
-    updateNavButtonsPosition(); // Initial position update on page load
+    function showFeedback(term, feedback, category, source) {
+        const feedbackPanel = document.getElementById('feedbackPanel');
+        const feedbackContent = document.getElementById('feedbackContent');
+        
+        // Show the panel
+        feedbackPanel.classList.add('visible');
+        
+        // Update content
+        feedbackContent.innerHTML = `
+            <h4>Term: "${term.textContent}"</h4>
+            <p><strong>Feedback:</strong> ${feedback}</p>
+            <p><strong>Category:</strong> ${category}</p>
+            <p><strong>Source:</strong> ${source}</p>
+        `;
+        
+        // Adjust panel height based on content
+        const contentHeight = feedbackContent.scrollHeight;
+        feedbackPanel.style.maxHeight = `${Math.min(contentHeight + 100, window.innerHeight * 0.3)}px`;
+        
+        // Remove previous highlights
+        document.querySelectorAll('.highlight.active').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Add highlight to current term
+        term.classList.add('active');
+    }
+
+    function initializeHighlightListeners() {
+        document.querySelectorAll('.highlight').forEach(element => {
+            element.addEventListener('click', (e) => {
+                const feedback = e.target.dataset.feedback;
+                const category = e.target.dataset.category;
+                const source = e.target.dataset.source;
+                showFeedback(e.target, feedback, category, source);
+            });
+        });
+    }
+
+    // Update existing navigation functions to show feedback
+    function scrollToTerm(index) {
+        if (!termElements.length) return;
+        
+        currentTermIndex = ((index % termElements.length) + termElements.length) % termElements.length;
+        const currentTerm = termElements[currentTermIndex];
+        
+        currentTerm.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        // Show feedback for the current term
+        const { feedback, category, source } = currentTerm.dataset;
+        showFeedback(currentTerm, feedback, category, source);
+    }
 });

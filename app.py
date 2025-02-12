@@ -6,6 +6,7 @@ import docx
 import PyPDF2
 import spacy
 import sqlite3
+import re
 
 logging.basicConfig(                                                # Configure the logging module.
     level=logging.DEBUG,  # Set to INFO or ERROR for production
@@ -48,10 +49,24 @@ def extract_text_from_pdf(file_path):                           # Function to ex
 def get_problematic_terms():                                        # Function to fetch problematic terms and feedback from the database
     conn = sqlite3.connect('terms.db')                              # Connect to the database
     cursor = conn.cursor()                                          # Create a cursor object
-    cursor.execute("SELECT term, feedback FROM problematic_terms")  # Execute a query
+    cursor.execute("""
+        SELECT t.term, t.pattern, t.feedback, c.name, s.name 
+        FROM problematic_terms t
+        LEFT JOIN categories c ON t.category_id = c.id
+        LEFT JOIN sources s ON t.source_id = s.id
+    """)
     terms = cursor.fetchall()                                       # Fetch all the results
     conn.close()                                                    # Close the connection          
-    return {term: feedback for term, feedback in terms}             # Return a dictionary of terms and feedback
+    return [
+        {
+            "term": term,
+            "pattern": pattern or r'\b' + re.escape(term) + r'\b',
+            "feedback": feedback,
+            "category": category,
+            "source": source
+        }
+        for term, pattern, feedback, category, source in terms
+    ]
 
 def get_topics():                                                   # Function to fetch topics and associated terms from the database
     conn = sqlite3.connect('terms.db')                              # Connect to the database
@@ -81,18 +96,30 @@ def analyze():
         input_text = data['text']
         logger.info(f"Input text: {input_text}")
 
-        terms_feedback = get_problematic_terms()
+        terms_data = get_problematic_terms()
         topics = get_topics()
 
         analysis_results = []
         highlighted_text = input_text
 
-        for term, feedback in terms_feedback.items():
-            if term.lower() in input_text.lower():
-                logger.info(f"Problematic term found: {term}")
-                analysis_results.append({"term": term, "feedback": feedback})
-                highlighted_text = highlighted_text.replace(
-                    term, f'<span class="highlight">{term}</span>'
+        for term_info in terms_data:
+            pattern = term_info["pattern"]
+            regex = re.compile(pattern, re.IGNORECASE)
+            
+            if regex.search(input_text):
+                match = regex.search(input_text)
+                analysis_results.append({
+                    "term": match.group(),
+                    "feedback": term_info["feedback"],
+                    "category": term_info["category"],
+                    "source": term_info["source"]
+                })
+                
+                highlighted_text = regex.sub(
+                    lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
+                            f'data-category="{term_info["category"]}" '
+                            f'data-source="{term_info["source"]}">{m.group()}</span>',
+                    highlighted_text
                 )
 
         for topic, terms in topics.items():
@@ -146,19 +173,33 @@ def upload_file():                                                      # Define
             with open(file_path, 'r', encoding='utf-8') as f:           # Open the file in read mode.
                 extracted_text = f.read()                               # Read the contents of the file.     
 
-        terms_feedback = get_problematic_terms()                # Fetch problematic terms and feedback from the database.
+        terms_data = get_problematic_terms()                # Fetch problematic terms and feedback from the database.
         analysis_results = []                                   # Initialize a list to store the analysis results.
+        highlighted_text = extracted_text
 
-        for term, feedback in terms_feedback.items():           # Iterate over the terms and feedback.
-            if term in extracted_text:                          # Check if the term is present in the extracted text.
-                analysis_results.append({                       # Add the term and feedback to the analysis results.
-                    "term": term,                               # Store the term.
-                    "feedback": feedback                        # Store the feedback.
+        for term_info in terms_data:
+            pattern = term_info["pattern"]
+            regex = re.compile(pattern, re.IGNORECASE)
+            
+            if regex.search(extracted_text):
+                match = regex.search(extracted_text)
+                analysis_results.append({
+                    "term": match.group(),
+                    "feedback": term_info["feedback"],
+                    "category": term_info["category"],
+                    "source": term_info["source"]
                 })
+                
+                highlighted_text = regex.sub(
+                    lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
+                            f'data-category="{term_info["category"]}" '
+                            f'data-source="{term_info["source"]}">{m.group()}</span>',
+                    highlighted_text
+                )
 
-        return jsonify({                                # Return the analysis results as JSON.
-            "input_text": extracted_text,               # Return the extracted text.
-            "analysis": analysis_results                # Return the analysis results (term + feedback).
+        return jsonify({
+            "input_text": highlighted_text,
+            "analysis": analysis_results
         })
 
     except Exception as e:
