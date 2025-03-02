@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 import docx
 import PyPDF2
-import spacy
+import nltk
 import sqlite3
 import re
 
@@ -20,7 +20,11 @@ logger = logging.getLogger(__name__)                                # Get a logg
 
 app = Flask(__name__)                                               # Create a Flask app.  
 
-nlp = spacy.load("en_core_web_sm")                                  # Load the spaCy model.
+# Download necessary NLTK data
+try:
+    nltk.download('punkt', quiet=True)
+except Exception as e:
+    logger.error(f"Error downloading NLTK data: {str(e)}")
 
 UPLOAD_FOLDER = 'uploads'                                # Define the upload folder.
 ALLOWED_EXTENSIONS = {'txt', 'docx', 'pdf'}              # Define the allowed file extensions.
@@ -118,30 +122,37 @@ def analyze():
         highlighted_text = input_text
 
         try:
-            for term_info in terms_data:
+            for idx, term_info in enumerate(terms_data):
                 pattern = term_info["pattern"]
                 regex = re.compile(pattern, re.IGNORECASE)
                 
-                if regex.search(input_text):
-                    match = regex.search(input_text)
+                for match in regex.finditer(input_text):
+                    term_id = f"term-{idx}-{len(analysis_results)}"
+                    matched_term = match.group()
+                    
                     analysis_results.append({
-                        "term": match.group(),
+                        "id": term_id,
+                        "term": matched_term,
                         "feedback": term_info["feedback"],
                         "category": term_info["category"] or "General",
                         "source": term_info["source"] or "Internal"
                     })
                     
-                    highlighted_text = regex.sub(
-                        lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
-                                f'data-category="{term_info["category"] or "General"}" '
-                                f'data-source="{term_info["source"] or "Internal"}">{m.group()}</span>',
-                        highlighted_text
-                    )
+                    # Create highlight span with data attributes
+                    highlight_span = f'<span class="highlight" data-id="{term_id}" data-feedback="{term_info["feedback"]}" data-category="{term_info["category"] or "General"}" data-source="{term_info["source"] or "Internal"}">{matched_term}</span>'
+                    
+                    # Replace this occurrence only (not all occurrences)
+                    start_pos = match.start()
+                    end_pos = match.end()
+                    highlighted_text = highlighted_text[:start_pos] + highlight_span + highlighted_text[end_pos:]
+                    
+                    # Adjust input text to account for the HTML we just inserted
+                    # This prevents multiple highlights overlapping
+                    input_text = input_text[:start_pos] + ' ' * len(matched_term) + input_text[end_pos:]
 
             return jsonify({
                 "input_text": highlighted_text,
-                "analysis": analysis_results,
-                "total_matches": len(analysis_results)
+                "analysis": analysis_results
             })
 
         except re.error as regex_error:
@@ -191,26 +202,36 @@ def upload_file():                                                      # Define
         terms_data = get_problematic_terms()                # Fetch problematic terms and feedback from the database.
         analysis_results = []                                   # Initialize a list to store the analysis results.
         highlighted_text = extracted_text
+        input_text = extracted_text
 
-        for term_info in terms_data:
+        # Process text and find matches
+        for idx, term_info in enumerate(terms_data):
             pattern = term_info["pattern"]
             regex = re.compile(pattern, re.IGNORECASE)
             
-            if regex.search(extracted_text):
-                match = regex.search(extracted_text)
+            for match in regex.finditer(input_text):
+                term_id = f"term-{idx}-{len(analysis_results)}"
+                matched_term = match.group()
+                
                 analysis_results.append({
-                    "term": match.group(),
+                    "id": term_id,
+                    "term": matched_term,
                     "feedback": term_info["feedback"],
-                    "category": term_info["category"],
-                    "source": term_info["source"]
+                    "category": term_info["category"] or "General",
+                    "source": term_info["source"] or "Internal"
                 })
                 
-                highlighted_text = regex.sub(
-                    lambda m: f'<span class="highlight" data-feedback="{term_info["feedback"]}" '
-                            f'data-category="{term_info["category"]}" '
-                            f'data-source="{term_info["source"]}">{m.group()}</span>',
-                    highlighted_text
-                )
+                # Create highlight span with data attributes
+                highlight_span = f'<span class="highlight" data-id="{term_id}" data-feedback="{term_info["feedback"]}" data-category="{term_info["category"] or "General"}" data-source="{term_info["source"] or "Internal"}">{matched_term}</span>'
+                
+                # Replace this occurrence only (not all occurrences)
+                start_pos = match.start()
+                end_pos = match.end()
+                highlighted_text = highlighted_text[:start_pos] + highlight_span + highlighted_text[end_pos:]
+                
+                # Adjust input text to account for the HTML we just inserted
+                # This prevents multiple highlights overlapping
+                input_text = input_text[:start_pos] + ' ' * len(matched_term) + input_text[end_pos:]
 
         return jsonify({
             "input_text": highlighted_text,

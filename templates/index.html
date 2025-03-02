@@ -5,39 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>DEI Content Checker</title>
 </head>
 <body>
     <div class="container">
         <h1>DEI Content Checker</h1>
-        <p>Paste your text below and click "Analyse" to review your content.</p>
-        <textarea id="inputText" placeholder="Enter your text here..."></textarea>
-        <button id="analyzeButton">Analyze</button>
-
-        <div>
-            <h2>Upload a Document</h2>
-            <input type="file" id="fileInput">
-            <button id="uploadButton">Upload and Analyze</button>
+        <p class="intro-text">Analyse your content and receive suggestions for improving inclusivity and accessibility.</p>
+        
+        <div class="input-section">
+            <h2>Text Analysis</h2>
+            <p>Paste your text below and click "Analyse" to review your content for inclusive language.</p>
+            <textarea id="inputText" placeholder="Enter your text here for analysis..."></textarea>
+            <button id="analyzeButton">Analyse Text</button>
         </div>
 
-        <div class="result" id="result">
-            <h3>Issues Found:</h3>
-            <ul id="issuesList"></ul>
-            <h3>Analysis Result:</h3>
-            <div id="highlightedText" class="highlight-container"></div>
-            <div id="tooltip" class="tooltip"></div>
-            
-            <div class="feedback-panel" id="feedbackPanel">
-                <div class="nav-controls">
-                    <button id="prevTermButton"><i class="fas fa-chevron-up"></i></button>
-                    <button id="nextTermButton"><i class="fas fa-chevron-down"></i></button>
-                    <button id="topButton"><i class="fas fa-angle-double-up"></i></button>
+        <div class="upload-section">
+            <h2>Document Analysis</h2>
+            <p>Upload a document (.txt, .docx, or .pdf) for analysis.</p>
+            <div class="file-upload-container">
+                <input type="file" id="fileInput" accept=".txt,.docx,.pdf">
+            </div>
+            <button id="uploadButton">Upload and Analyse</button>
+            <p class="file-info">Maximum file size: 10MB</p>
+        </div>
+        
+        <!-- Loading indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Analyzing your content...</p>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>Analysis Results</h2>
+            <p class="text-muted">Review the analysis results below. Click on highlighted terms to view detailed feedback and suggestions.</p>
+            <div class="results-container">
+                <div class="results-issues" id="issuesPanel">
+                    <div class="panel-header-controls">
+                        <h4>
+                            Issues Found 
+                            <span class="issue-count" id="issueCount">0</span>
+                        </h4>
+                        <button class="panel-hide-button" id="panelHideButton">
+                            <i class="fas fa-arrow-left"></i> Hide Issues
+                        </button>
+                    </div>
+                    <div id="issuesList" class="issues-list-container"></div>
                 </div>
-                <div class="feedback-content" id="feedbackContent">
-                    <p>Click on a highlighted term to see feedback</p>
+                <div class="results-text">
+                    <button id="toggleIssuesPanel" class="toggle-panel" title="Show issues panel"><i class="fas fa-list-ul"></i> Show Issues</button>
+                    <h4>
+                        Analyzed Text
+                    </h4>
+                    <div id="analyzedText" class="analyzed-text-container"></div>
                 </div>
             </div>
+            
+            <!-- Feedback Popup -->
+            <div id="feedbackPopup" class="feedback-popup">
+                <div class="popup-content">
+                    <button id="closePopup" class="close-popup"><i class="fas fa-times"></i></button>
+                    <div class="popup-header">
+                        <h4 id="popupTerm">Term</h4>
+                        <span id="popupCategory" class="category-tag">Category</span>
+                    </div>
+                    <div id="popupFeedback" class="popup-body">Feedback will appear here</div>
+                    <div class="popup-footer">
+                        <small id="popupSource">Source: </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="tooltip" class="tooltip"></div>
+
+            <div class="results-actions">
+                <button id="copyResultsButton"><i class="fas fa-copy"></i> Copy Results</button>
+                <button id="downloadReportButton"><i class="fas fa-download"></i> Download Report</button>
+            </div>
         </div>
+        
+        <footer>
+            <p>DEI Content Checker helps identify potentially problematic language to create more inclusive and accessible content.</p>
+            <p class="copyright">&copy; 2025 DEI Content Checker</p>
+        </footer>
     </div>
     <script src="/static/script.js"></script>
 </body>

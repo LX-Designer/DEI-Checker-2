@@ -1,7 +1,7 @@
 /* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
     color: #333;
     margin: 0;
     padding: 0;
@@ -9,155 +9,317 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    line-height: 1.6;
 }
 
 .container {
-    width: 90%;
-    max-width: 80%;
+    width: 92%;
+    max-width: 1200px;
     background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin: 20px;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin: 25px auto;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 h1, h2, h3 {
-    color: #0056b3;
+    color: #2563eb;
+    margin-top: 0;
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-top: 1.5rem;
+    color: #1e40af;
+}
+
+h3 {
+    font-size: 1.5rem;
+    color: #2563eb;
 }
 
 p {
-    line-height: 1.6;
+    line-height: 1.7;
+    color: #4b5563;
+    margin-bottom: 1rem;
 }
 
 textarea {
     width: 100%;
-    height: 150px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    height: 200px;
+    padding: 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    margin-bottom: 15px;
     font-size: 16px;
     resize: vertical;
     box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: inherit;
+    background-color: #f9fafb;
 }
 
 textarea:focus {
-    border-color: #007bff;
+    border-color: #2563eb;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    background-color: #fff;
 }
 
 button {
-    background-color: #007bff;
+    background-color: #2563eb;
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 12px 24px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.2);
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #1d4ed8;
+    transform: scale(1.02); /* Subtle growth instead of vertical movement */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
+button:active {
+    transform: scale(0.98); /* Subtle press effect instead of vertical movement */
+}
+
+/* Upload section styling */
+.upload-section {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px dashed #ced4da;
+}
+
+.upload-section h2 {
+    margin-top: 0;
+}
+
+/* Result section styling */
 .result {
     display: none;
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 30px;
+    padding: 20px;
     background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
     overflow: hidden;
     position: relative;
-    margin-bottom: calc(25vh + 40px); /* Add space for feedback panel */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.highlight {
-    background-color: #ffeb3b;  /* existing highlight color */
-    color: black;
-    border-radius: 3px;
-    padding: 2px 4px;
+/* Issue list styling */
+.results-issues {
     position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-.highlight.focused {
-    background-color: #ffd700;
-    outline: 2px solid #007bff;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
-    position: relative;
-    z-index: 1;
-}
-
-.term-focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
-    border-radius: 2px;
-    transition: outline 0.2s ease-in-out;
-}
-
-input[type="file"] {
-    border: 1px solid #ccc;
-    padding: 8px;
-    border-radius: 5px;
-    background-color: #fff;
-    cursor: pointer;
-}
-
-input[type="file"]:hover {
-    border-color: #007BFF;
-}
-
-a {
-    text-decoration: none; /* Remove underline */
-    color: #007bff; /* Change color */
-}
-
-a:hover {
-    color: #0056b3; /* Change color on hover */
-}
-
-/* Navigation Buttons */
-.nav-buttons {
-    position: fixed; /* Fixed position */
-    bottom: 20px;
-    left: 0; /* Will be dynamically updated */
+.panel-header-controls {
     display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-end; /* Align buttons to the right */
-    z-index: 1000; /* Ensure it's above the result container */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
-.nav-buttons button {
-    width: 40px;
-    height: 40px;
-    background-color: #007bff;
-    color: #ffffff;
+.panel-header-controls h4 {
+    margin: 0;
+    flex: 1;
+}
+
+.panel-hide-button {
+    background-color: #2563eb;
+    color: white;
     border: none;
-    border-radius: 50%;
-    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    transition: background-color 0.3s;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-left: 10px;
 }
 
-.nav-buttons button:hover {
-    background-color: #0056b3;
+.panel-hide-button i {
+    margin-right: 5px;
 }
 
+.panel-hide-button:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.02); /* Subtle growth instead of vertical movement */
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+#issuesList {
+    padding-left: 10px;
+    padding-right: 15px;
+    margin-top: 0;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#issuesList h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #e9ecef;
+    color: #495057;
+}
+
+#issuesList ul {
+    list-style-type: none;
+    padding-left: 15px;
+}
+
+#issuesList li {
+    margin-bottom: 12px;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #0d6efd;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    line-height: 1.5;
+    padding: 12px 15px;
+}
+
+#issuesList li:hover {
+    background-color: #e9f2ff;
+    transform: translateX(3px);
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.15);
+}
+
+#issuesList li.active {
+    background-color: #e9f2ff;
+    border-left: 4px solid #0d6efd;
+    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+    transform: translateX(5px);
+}
+
+#issuesList small {
+    color: #6c757d;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Style for strong elements in issue list items */
+#issuesList li strong {
+    display: inline-block;
+    margin-bottom: 3px;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Highlighted text container */
+.highlight-container {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 15px;
+    line-height: 1.8;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.highlight {
+    background-color: rgba(252, 211, 77, 0.3);
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: 0 2px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    border-bottom: 2px dashed #f59e0b;
+}
+
+.highlight:hover {
+    background-color: rgba(251, 191, 36, 0.4);
+}
+
+.highlight.active {
+    background-color: rgba(245, 158, 11, 0.5);
+    border-bottom: 2px solid #d97706;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+    animation: pulseFocus 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: background-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pulseFocus {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+input[type="file"] {
+    border: 1px solid #ced4da;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+input[type="file"]:hover {
+    border-color: #0d6efd;
+}
+
+/* Navigation controls */
 .nav-controls {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 5px;
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background-color: rgba(13, 110, 253, 0.9);
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .nav-controls button {
@@ -165,58 +327,877 @@ a:hover {
     height: 40px;
     padding: 0;
     border-radius: 50%;
-    background-color: #007bff;
+    background-color: transparent;
     color: #fff;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    margin: 0;
 }
 
 .nav-controls button:hover {
-    background-color: #0056b3;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05); /* Replaced translateY with scale */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.feedback-panel {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 80%;
-    background-color: #fff;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    padding: 15px;
-    max-height: 25vh;
-    display: none;
-    flex-direction: column;
-    transition: all 0.3s ease;
-    border-radius: 5px 5px 0 0;
-    box-sizing: border-box;
-    margin: 0 0 10px 0;
-}
-
-.feedback-panel.visible {
-    display: flex;
-}
-
-.feedback-content {
-    overflow-y: auto;
-    padding: 10px;
+/* Tooltip styling */
+.tooltip {
+    position: absolute;
+    background-color: #212529;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
     font-size: 14px;
-    line-height: 1.5;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
-.feedback-content h4 {
+/* Results container layout */
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    position: relative;
+    overflow-x: hidden; /* Prevent horizontal scrollbars during animation */
+    perspective: 1000px; /* Add perspective for smoother animations */
+}
+
+.results-issues {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1); /* Improved easing curve */
+    will-change: transform, opacity; /* Hint browser to optimize these properties */
+    transform: translate3d(0, 0, 0); /* Force hardware acceleration */
+    backface-visibility: hidden; /* Prevent flickering in some browsers */
+    opacity: 1;
+    transform-style: preserve-3d; /* Better 3D rendering for smoother animations */
+}
+
+.results-text {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: auto;
+    width: 100%;
+    max-width: 100%;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    will-change: transform, margin-left, width;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+}
+
+.intro-text {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+    font-size: 1.1rem;
+    color: #6b7280;
+}
+
+.input-section {
+    margin-bottom: 30px;
+}
+
+footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #6c757d;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Enhanced responsiveness for larger screens */
+@media (min-width: 992px) {
+    .results-container {
+        flex-direction: row;
+        align-items: stretch;
+        min-height: auto;
+        position: relative;
+    }
+    
+    .results-issues {
+        flex: 0 0 30%;
+        min-width: 250px;
+        max-width: 30%;
+        overflow-y: auto;
+        max-height: none;
+        height: auto;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 10;
+        transform: translate3d(0, 0, 0);
+        background-color: white;
+        opacity: 1;
+    }
+    
+    .results-text {
+        flex: 1;
+        transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        margin-left: 0;
+        min-height: auto;
+    }
+    
+    /* When issues panel is hidden in desktop view */
+    .results-container.issues-hidden .results-issues {
+        transform: translate3d(-100%, 0, 0);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    /* When issues panel is visible in desktop view */
+    .results-container:not(.issues-hidden) .results-issues {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    /* Adjust width/position of text panel when issues panel is hidden/shown */
+    .results-container.issues-hidden .results-text {
+        width: 100%;
+        margin-left: 0;
+        transition: width 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                    margin-left 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    
+    .results-container:not(.issues-hidden) .results-text {
+        width: calc(70% - 20px);
+        margin-left: calc(30% + 20px);
+        transition: width 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                    margin-left 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    
+    /* Ensure smooth transitions for the text panel */
+    .results-container .results-text {
+        transition-property: width, margin-left, transform;
+        transition-duration: 0.5s;
+        transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    
+    #issuesList {
+        overflow-y: auto;
+        flex: 1;
+        scrollbar-width: thin;
+    }
+    
+    /* Hide toggle button when panel is visible in web view */
+    .results-container:not(.issues-hidden) .toggle-panel {
+        display: none;
+    }
+}
+
+/* Summary message styling */
+.summary-message {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e9f2ff;
+    border-radius: 8px;
+    border-left: 4px solid #0d6efd;
+}
+
+.summary-message p {
+    margin: 0;
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+/* Feedback Popup Styling */
+.feedback-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
+    animation: popupFadeIn 0.3s ease;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    transition: all 0.2s;
+    z-index: 10;
+    width: 30px;
+    height: 30px;
+}
+
+.close-popup:hover {
+    color: #2563eb;
+    transform: rotate(90deg);
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
+    padding-right: 40px;
+}
+
+.popup-header h4 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #1e40af;
+    flex: 1;
+    padding-right: 10px;
+}
+
+.category-tag {
+    display: inline-block;
+    background-color: #dbeafe;
+    color: #1e40af;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.popup-body {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    color: #4b5563;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Toggle Panel Button */
+.toggle-panel {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 10;
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.2);
+    margin: 0 0 10px 0;
+    width: 150px;
+    overflow: hidden;
+}
+
+.toggle-panel i {
+    margin-right: 8px;
+    font-size: 1rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
+}
+
+.toggle-panel:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.toggle-panel:hover i {
+    transform: translateX(5px);
+}
+
+/* Panel hide button animation */
+.panel-hide-button:hover i {
+    transform: translateX(-5px);
+}
+
+.panel-hide-button i {
+    margin-right: 8px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
+}
+
+/* Issue count badge */
+.issue-count {
+    display: inline-block;
+    background-color: #ffc107;
+    color: #212529;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+/* Text instructions */
+#textInstructions {
+    color: #6c757d;
+    font-weight: normal;
+    font-size: 0.85rem;
+    margin-left: 10px;
+}
+
+/* Results container with issues panel hidden - generic rules */
+.results-container.issues-hidden .results-issues {
+    transform: translate3d(-100%, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.results-container.issues-hidden .results-text {
+    width: 100%;
+    margin-left: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 991px) {
+    .results-container {
+        flex-direction: column;
+        width: 100%;
+        position: relative;
+    }
+    
+    .results-text {
+        width: 100%;
+        transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        margin-left: 0 !important;
+        transform: translate3d(0, 0, 0);
+        min-height: auto;
+        height: auto !important;
+    }
+    
+    .results-issues {
+        max-height: none;
+        height: auto;
+        min-height: 250px;
+        overflow-y: auto;
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 20px;
+        position: relative;
+        transform: none;
+        left: auto;
+        top: auto;
+        bottom: auto;
+    }
+    
+    .analyzed-text-container,
+    .issues-list-container {
+        min-height: 250px;
+    }
+    
+    /* When issues panel is visible in mobile view */
+    .results-container:not(.issues-hidden) .results-issues {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 85%;
+        height: auto;
+        max-height: 100vh;
+        background-color: white;
+        z-index: 980;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px;
+        padding-right: 25px;
+        padding-bottom: 60px;
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+                    height 0.3s ease;
+        transform: translate3d(0, 0, 0);
+        will-change: transform, opacity, height;
+        opacity: 1;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Add a fixed header to the panel with the title and hide button */
+    .results-container:not(.issues-hidden) .panel-header-controls {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        padding: 10px 0;
+        margin-top: 0;
+        z-index: 10;
+        padding-right: 0;
+    }
+    
+    /* Ensure issues list scrolls properly within the fixed container */
+    #issuesList {
+        max-height: calc(100vh - 120px);
+        min-height: auto;
+        height: auto;
+        overflow-y: auto;
+        padding-right: 10px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Ensure issue items display properly */
+    #issuesList ul {
+        width: 100%;
+        padding-left: 5px;
+        margin: 0;
+    }
+    
+    #issuesList li {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+    
+    /* Make sure panels adjust to content */
+    .results-container:not(.issues-hidden) .results-issues {
+        height: auto !important;
+        overflow-y: auto;
+    }
+    
+    /* Hide the panel hide button on small screens, use the mobile button instead */
+    .panel-hide-button {
+        display: none;
+    }
+    
+    /* Add a real close button for the panel on small screens */
+    .panel-close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+        transition: all 0.2s;
+        z-index: 10;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .panel-close-btn:hover {
+        color: #2563eb;
+        transform: rotate(90deg);
+    }
+    
+    /* On mobile, use display:none after animation completes for better performance */
+    .results-container.issues-hidden .results-issues {
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        animation: hideAfterTransition 0.5s forwards;
+        transform: translate3d(-100%, 0, 0);
+        opacity: 0;
+    }
+    
+    /* Backdrop for mobile when panel is open */
+    .results-container:not(.issues-hidden)::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 970;
+        opacity: 0;
+        will-change: opacity;
+        animation: fadeIn 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    
+    /* Add exit animation for backdrop */
+    .results-container.issues-hidden::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 970;
+        will-change: opacity;
+        animation: fadeOut 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        pointer-events: none;
+    }
+    
+    @keyframes hideAfterTransition {
+        0%, 99% {
+            display: flex;
+        }
+        100% {
+            display: none;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 0.5; }
+        to { opacity: 0; }
+    }
+}
+
+@media (min-width: 992px) {
+    .results-container.issues-hidden {
+        flex-direction: row;
+    }
+    
+    .toggle-panel {
+        position: relative;
+        bottom: auto;
+        right: auto;
+    }
+    
+    /* Hide the panel close arrow in favor of the new hide button */
+    .panel-close-arrow {
+        display: none;
+    }
+    
+    /* Always show the panel hide button on desktop */
+    .panel-hide-button {
+        display: flex;
+    }
+    
+    /* Hide the panel close button in desktop view */
+    .panel-close-btn {
+        display: none !important;
+    }
+    
+    /* Override the default display:none in desktop view to use transforms instead */
+    .results-container.issues-hidden .results-issues {
+        display: flex !important; /* Use transform for animation instead of display:none */
+        transform: translate3d(-100%, 0, 0);
+        opacity: 0.5;
+        pointer-events: none; /* Prevent interaction while hidden */
+    }
+}
+
+/* Results display styling */
+.results-section {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: visible;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.results-section:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+}
+
+/* Analyzed text container */
+.analyzed-text-container {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    line-height: 1.8;
+    height: auto !important; /* Force auto height by default */
+    min-height: 200px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    transition: min-height 0.3s ease;
+}
+
+@media (max-width: 991px) {
+    .analyzed-text-container {
+        min-height: 250px !important;
+        height: auto !important; /* Force auto height on mobile */
+        transition: min-height 0.3s ease;
+    }
+}
+
+@media (min-width: 992px) {
+    .analyzed-text-container {
+        min-height: 200px !important;
+        height: auto !important; /* Force auto height on desktop */
+        transition: min-height 0.3s ease;
+    }
+}
+
+/* Issues list container */
+.issues-list-container {
+    padding-left: 10px;
+    padding-right: 10px;
     margin-top: 0;
-    color: #0056b3;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
 }
 
-.feedback-content p {
-    margin: 8px 0;
-    color: #333;
+/* When there are many issues, ensure the list is scrollable */
+#issuesList {
+    scrollbar-width: thin;
+    scrollbar-color: #0d6efd #f8f9fa;
 }
+
+#issuesList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#issuesList::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+#issuesList::-webkit-scrollbar-thumb {
+    background-color: #0d6efd;
+    border-radius: 4px;
+    border: 2px solid #f8f9fa;
+}
+
+/* Adding new styles for better UX */
+.input-section, .upload-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.input-section:hover, .upload-section:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
+}
+
+/* Loading indicator */
+.loading-indicator {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 5px solid #2563eb;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 15px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+/* Mobile improvements */
+@media (max-width: 991px) {
+    .container {
+        width: 95%;
+        padding: 20px;
+        margin: 15px auto;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .results-issues {
+        border-radius: 10px 10px 0 0;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .results-text {
+        border-radius: 0 0 10px 10px;
+    }
+}
+
+/* File upload styling */
+.file-upload-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.file-info {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+input[type="file"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px;
+    background-color: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    background-color: #eef2ff;
+    border-color: #2563eb;
+}
+
+/* Results actions styling */
+.results-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.results-actions button {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.results-actions button:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+    transform: scale(1.02); /* Replaced translateY with scale */
+}
+
+/* Copyright styling */
+.copyright {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 10px;
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+    .file-upload-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    input[type="file"] {
+        width: 100%;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .results-actions button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+/* Additional accessibility improvements */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+@media (max-width: 400px) {
+    .toggle-panel {
+        width: 100%;
+    }
+}
+
