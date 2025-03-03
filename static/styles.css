@@ -70,7 +70,7 @@ textarea {
     box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
     font-family: inherit;
-    background-color: #f9fafb;
+    background-color: white;
 }
 
 textarea:focus {
@@ -176,64 +176,84 @@ button:active {
 }
 
 #issuesList {
-    padding-left: 10px;
-    padding-right: 15px;
-    margin-top: 0;
-    overflow-y: auto;
-    flex: 1;
+    padding: 0 15px 0 15px;
+    margin: 0;
     max-height: 100%;
-    width: 100%;
-    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 #issuesList h4 {
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
     padding-bottom: 5px;
-    border-bottom: 2px solid #e9ecef;
-    color: #495057;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 #issuesList ul {
     list-style-type: none;
-    padding-left: 15px;
+    padding-left: 0;
 }
 
 #issuesList li {
-    margin-bottom: 12px;
-    padding: 10px 15px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    border-left: 4px solid #0d6efd;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    overflow: hidden;
-    box-sizing: border-box;
-    width: 100%;
-    line-height: 1.5;
     padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-color: #f9fafb;
+    border-left: 3px solid #2563eb;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-#issuesList li:hover {
-    background-color: #e9f2ff;
-    transform: translateX(3px);
-    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.15);
+/* Confidence level styles for list items */
+#issuesList li.high-confidence-item {
+    border-left: 3px solid #ef4444; /* Red border */
 }
 
-#issuesList li.active {
-    background-color: #e9f2ff;
-    border-left: 4px solid #0d6efd;
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
-    transform: translateX(5px);
+#issuesList li.medium-confidence-item {
+    border-left: 3px solid #f59e0b; /* Orange border - default */
 }
 
-#issuesList small {
-    color: #6c757d;
-    display: block;
-    margin-top: 5px;
+#issuesList li.low-confidence-item {
+    border-left: 3px solid #3b82f6; /* Blue border */
+}
+
+/* Confidence indicator badges */
+.confidence-indicator {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.confidence-indicator.high-confidence {
+    background-color: rgba(252, 165, 165, 0.4);
+    color: #b91c1c;
+    border: 1px solid #ef4444;
+}
+
+.confidence-indicator.medium-confidence {
+    background-color: rgba(252, 211, 77, 0.3);
+    color: #d97706;
+    border: 1px solid #f59e0b;
+}
+
+.confidence-indicator.low-confidence {
+    background-color: rgba(191, 219, 254, 0.4);
+    color: #1d4ed8;
+    border: 1px solid #3b82f6;
+}
+
+/* Context note style */
+.context-note {
+    font-style: italic;
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    padding: 4px 0;
+    border-top: 1px dashed #e5e7eb;
 }
 
 /* Style for strong elements in issue list items */
@@ -264,6 +284,22 @@ button:active {
     position: relative;
     transition: all 0.2s ease;
     border-bottom: 2px dashed #f59e0b;
+}
+
+/* Confidence level styling */
+.highlight.high-confidence {
+    background-color: rgba(252, 165, 165, 0.4); /* Light red background */
+    border-bottom: 2px dashed #ef4444; /* Red border */
+}
+
+.highlight.medium-confidence {
+    background-color: rgba(252, 211, 77, 0.3); /* Default yellow background */
+    border-bottom: 2px dashed #f59e0b; /* Default orange border */
+}
+
+.highlight.low-confidence {
+    background-color: rgba(191, 219, 254, 0.4); /* Light blue background */
+    border-bottom: 2px dashed #3b82f6; /* Blue border */
 }
 
 .highlight:hover {
@@ -1014,11 +1050,12 @@ footer {
 /* When there are many issues, ensure the list is scrollable */
 #issuesList {
     scrollbar-width: thin;
-    scrollbar-color: #0d6efd #f8f9fa;
+    scrollbar-color: #c0c0c0 #f0f0f0;
 }
 
 #issuesList::-webkit-scrollbar {
     width: 8px;
+    background-color: #f0f0f0; /* Softer background color */
 }
 
 #issuesList::-webkit-scrollbar-track {
@@ -1026,9 +1063,12 @@ footer {
 }
 
 #issuesList::-webkit-scrollbar-thumb {
-    background-color: #0d6efd;
+    background-color: #c0c0c0; /* Softer thumb color */
     border-radius: 4px;
-    border: 2px solid #f8f9fa;
+}
+
+#issuesList::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a0; /* Slightly darker on hover */
 }
 
 /* Adding new styles for better UX */
@@ -1117,7 +1157,7 @@ input[type="file"] {
     flex: 1;
     min-width: 200px;
     padding: 10px;
-    background-color: #f9fafb;
+    background-color: white;
     border: 1px dashed #d1d5db;
     border-radius: 8px;
     color: #4b5563;
@@ -1199,5 +1239,104 @@ input[type="file"]:hover {
     .toggle-panel {
         width: 100%;
     }
+}
+
+/* Confidence filter controls */
+.confidence-filter-controls {
+    background-color: #f3f4f6;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.filter-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-option input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Adjust size of confidence indicators in filter */
+.filter-option .confidence-indicator {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+}
+
+/* Topics section styles */
+.topics-section {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.topics-section h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.topics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.topic-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.topic-name {
+    font-weight: 600;
+    color: #374151;
+    min-width: 120px;
+    flex-basis: 30%;
+}
+
+.topic-bar-container {
+    height: 12px;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.topic-bar {
+    height: 100%;
+    background-color: #3b82f6;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+
+.topic-matches {
+    color: #6b7280;
+    font-size: 0.85rem;
+    min-width: 80px;
+    text-align: right;
 }
 

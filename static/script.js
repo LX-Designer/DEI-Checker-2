@@ -356,6 +356,33 @@ document.addEventListener("DOMContentLoaded", () => {
             resultsTextContainer.style.minHeight = '';
         }
         
+        // Add confidence filter controls at the top of the issues panel
+        const filterControls = document.createElement('div');
+        filterControls.className = 'confidence-filter-controls';
+        filterControls.innerHTML = `
+            <div class="filter-label">Filter by confidence:</div>
+            <div class="filter-options">
+                <label class="filter-option">
+                    <input type="checkbox" data-confidence="high" checked>
+                    <span class="confidence-indicator high-confidence">High</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" data-confidence="medium" checked>
+                    <span class="confidence-indicator medium-confidence">Medium</span>
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" data-confidence="low" checked>
+                    <span class="confidence-indicator low-confidence">Low</span>
+                </label>
+            </div>
+        `;
+        issuesList.appendChild(filterControls);
+        
+        // Add event listeners for filter checkboxes
+        filterControls.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', filterIssuesByConfidence);
+        });
+        
         // Set the analyzed text
         analyzedTextContainer.innerHTML = result.input_text;
         
@@ -395,8 +422,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 listItem.dataset.category = issue.category || "General";
                 listItem.dataset.source = issue.source || "Internal";
                 
+                // Add confidence class to list item
+                if (issue.confidence !== undefined) {
+                    if (issue.confidence < 0.3) {
+                        listItem.classList.add('low-confidence-item');
+                    } else if (issue.confidence < 0.7) {
+                        listItem.classList.add('medium-confidence-item');
+                    } else {
+                        listItem.classList.add('high-confidence-item');
+                    }
+                    
+                    // Store confidence data
+                    listItem.dataset.confidence = issue.confidence;
+                    listItem.dataset.contextNote = issue.context_note || "";
+                }
+                
+                // Create confidence indicator
+                let confidenceIndicator = '';
+                if (issue.confidence !== undefined) {
+                    const confidenceLevel = issue.confidence < 0.3 ? 'Low' : 
+                                          (issue.confidence < 0.7 ? 'Medium' : 'High');
+                    confidenceIndicator = `<span class="confidence-indicator ${confidenceLevel.toLowerCase()}-confidence">
+                        ${confidenceLevel} confidence
+                    </span>`;
+                }
+                
                 listItem.innerHTML = `
                     <strong>"${issue.term}"</strong>: ${issue.feedback}
+                    ${confidenceIndicator}
+                    ${issue.context_note ? `<div class="context-note">${issue.context_note}</div>` : ''}
                     <br><small>Source: ${issue.source || "Internal"}</small>
                 `;
                 
@@ -600,6 +654,45 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Add window resize event to maintain matching heights
         window.addEventListener('resize', matchPanelHeights);
+
+        // After topics_data = get_topics();
+        // Add topic analysis section if topics are available
+        if (result.topics && Object.keys(result.topics).length > 0) {
+            const topicsSection = document.createElement('div');
+            topicsSection.className = 'topics-section';
+            
+            const topicsHeader = document.createElement('h3');
+            topicsHeader.textContent = 'Detected Topics';
+            topicsSection.appendChild(topicsHeader);
+            
+            const topicsList = document.createElement('div');
+            topicsList.className = 'topics-list';
+            
+            // Convert to array for easier sorting
+            const topicsArray = Object.entries(result.topics)
+                .map(([topic, data]) => ({ topic, ...data }));
+            
+            topicsArray.forEach(topicData => {
+                const topicItem = document.createElement('div');
+                topicItem.className = 'topic-item';
+                
+                // Calculate width based on relevance (50% minimum, 100% maximum)
+                const barWidth = 50 + (topicData.relevance * 50);
+                
+                topicItem.innerHTML = `
+                    <div class="topic-name">${topicData.topic}</div>
+                    <div class="topic-bar-container">
+                        <div class="topic-bar" style="width: ${barWidth}%"></div>
+                    </div>
+                    <div class="topic-matches">${topicData.matches} matches</div>
+                `;
+                
+                topicsList.appendChild(topicItem);
+            });
+            
+            topicsSection.appendChild(topicsList);
+            issuesList.appendChild(topicsSection);
+        }
     }
     
     // Handle analyze button click
@@ -1111,5 +1204,48 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.deltaY > 0 && scrollTop + clientHeight >= scrollHeight) {
             e.preventDefault();
         }
+    }
+
+    // Add function to filter issues by confidence
+    function filterIssuesByConfidence() {
+        // Get selected confidence levels
+        const selectedLevels = [];
+        document.querySelectorAll('.confidence-filter-controls input[type="checkbox"]:checked').forEach(checkbox => {
+            selectedLevels.push(checkbox.dataset.confidence);
+        });
+        
+        // Filter list items based on confidence class
+        const issueItems = document.querySelectorAll('#issuesList li');
+        issueItems.forEach(item => {
+            let shouldShow = false;
+            
+            if (item.classList.contains('high-confidence-item') && selectedLevels.includes('high')) {
+                shouldShow = true;
+            } else if (item.classList.contains('medium-confidence-item') && selectedLevels.includes('medium')) {
+                shouldShow = true;
+            } else if (item.classList.contains('low-confidence-item') && selectedLevels.includes('low')) {
+                shouldShow = true;
+            }
+            
+            item.style.display = shouldShow ? '' : 'none';
+        });
+        
+        // Also filter highlights in the text
+        const highlights = document.querySelectorAll('.highlight');
+        highlights.forEach(highlight => {
+            let shouldShow = false;
+            
+            if (highlight.classList.contains('high-confidence') && selectedLevels.includes('high')) {
+                shouldShow = true;
+            } else if (highlight.classList.contains('medium-confidence') && selectedLevels.includes('medium')) {
+                shouldShow = true;
+            } else if (highlight.classList.contains('low-confidence') && selectedLevels.includes('low')) {
+                shouldShow = true;
+            }
+            
+            // For highlights, we don't want to fully hide them, just make them less visible
+            highlight.style.opacity = shouldShow ? '1' : '0.25';
+            highlight.style.pointerEvents = shouldShow ? 'auto' : 'none';
+        });
     }
 });
